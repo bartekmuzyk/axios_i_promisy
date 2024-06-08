@@ -159,7 +159,7 @@ Naszym zadaniem jest napisać funkcję `grupuj(funTab1, funTab2, cb)`, która:
 ```
 Można tą postać wyników wyrazić za pomocą tabelki o szerokości **2** i wysokości **równej ilości funkcji w dłuższej liście**:
 |            |**funTab1**             |**funTab2**             |
-|------------|------------------------|-----------------------:|
+|------------|:-----------------------|-----------------------:|
 |**funkcja1**|funTab**1**_funkcja**1**|funTab**2**_funkcja**1**|
 |**funkcja2**|funTab**1**_funkcja**2**|funTab**2**_funkcja**2**|
 |**funkcja3**|funTab**1**_funkcja**3**|funTab**2**_funkcja**3**|
@@ -172,7 +172,7 @@ W zadaniu znajduje się również taka wzmianka:
 
 Chodzi o to, że jeżeli np. `funTab1` zawiera 5 funkcji, a `funTab2` tylko 3, to wynikowa lista będzie wyglądała tak:
 |            |**funTab1**             |**funTab2**             |
-|------------|------------------------|-----------------------:|
+|------------|:-----------------------|-----------------------:|
 |**funkcja1**|funTab**1**_funkcja**1**|funTab**2**_funkcja**1**|
 |**funkcja2**|funTab**1**_funkcja**2**|funTab**2**_funkcja**2**|
 |**funkcja3**|funTab**1**_funkcja**3**|funTab**2**_funkcja**3**|
