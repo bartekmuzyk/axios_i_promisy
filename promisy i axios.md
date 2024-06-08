@@ -329,3 +329,56 @@ const grupuj = (funTab1, funTab2, cb) => {
     });
 };
 ```
+
+Nie jest to natomiast koniec zadania, ponieważ jak możesz zauważyć, nasze `wynikiZObuTablic` będą w odrobinę innym formacie:
+```js
+[
+    [funTab1_funkcja1, funTab1_funkcja2, funTab1_funkcja3, ...],
+    [funTab2_funkcja1, funTab2_funkcja2, funTab2_funkcja3, ...]
+]
+```
+W postaci tabelki można pokazać to tak:
+
+|            |**funkcja1**            |**funkcja2**            |**funkcja3**             |
+|-----------:|:-----------------------|:-----------------------|:------------------------|
+|**funTab1** |funTab**1**_funkcja**1**|funTab**1**_funkcja**2**|funTab**1**_funkcja**3** |
+|**funTab2** |funTab**2**_funkcja**1**|funTab**2**_funkcja**2**|funTab**2**_funkcja**3** |
+
+To co chcemy otrzymać, to to co mamy, ale z **odwróconymi osiami poziomymi i pionowymi** (numer tablicy funkcji powinien znajdować się w poziomie, a numer samej funkcji w pionie - teraz jest na odwrót).
+
+Niestety JavaScript nie udostępnia żadnej wbudowanej funkcji, która pozwala takie odwrócenie osi zrobić automatycznie. Musimy też jeszcze wziąć pod uwagę fakt, że `funTab1` i `funTab2` mogą być różnej długości. Taki mechanizm musimy napisać samemu:
+
+```js
+const grupuj = (funTab1, funTab2, cb) => {
+    const promisyZFunTab1 = funTab1.map(funkcja => funkcja());
+    const pierwszaCzesc = Promise.all(promisyZFunTab1);
+
+    const promisyZFunTab2 = funTab2.map(funkcja => funkcja());
+    const drugaCzesc = Promise.all(promisyZFunTab2);
+
+    const obieCzesci = Promise.all([pierwszaCzesc, drugaCzesc]);
+
+    obieCzesci.then(wynikiZObuTablic => {
+        // Rozdzielmy sobie całościowe wyniki na ich "składowe"
+        const wynikiFunTab1 = wynikiZObuTablic[0];  // wyniki z "pierwszaCzesc"
+        const wynikiFunTab2 = wynikiZObuTablic[1];  // wyniki z "drugaCzesc"
+
+        // Znajdujemy długość dłuższej z dwóch list
+        const maxLength = Math.max(wynikiZFunTab1.length, wynikiZFunTab2.length);
+
+        // Tworzymy pustą listę długości maxLength i wypełniamy ją null'ami
+        // Listę musimy wypełnić od razu jakimiś danymi, ponieważ inaczej nie da się bo niej iterować
+        const podstawka = Array(maxLength).fill(null);
+
+        // Zamieniamy każdego takiego null'a, na i-te wyniki z obu tablic (wynikiFunTab1 i wynikiFunTab2)
+        const poprawnieFormatowaneWyniki = podstawka.map((_, i) => {
+            return [
+                wynikiFunTab1[i] ?? 0, // Pierwsza pozycja = wynik i-tej funkcji z funTab1 (lub zero jeśli takowego nie ma)
+                wynikiFunTab2[i] ?? 0  //    Druga pozycja = wynik i-tej funkcji z funTab2 (lub zero jeśli takowego nie ma)
+            ]; // Zwracamy dwuelementową listę (ponieważ mamy dwie kolumny do utworzenia, jedna na każdego funTab'a)
+        });
+
+        cb(poprawnieFormatowaneWyniki);  // Dajemy już poprawnie sformatowane wyniki do callbacka przyjętego przy wywołaniu grupuj() przez użytkownika
+    });
+};
+```
