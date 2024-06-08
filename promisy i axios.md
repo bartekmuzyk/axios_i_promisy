@@ -10,7 +10,7 @@ Działanie tej funkcji wygląda następująco:
 - Poczekaj, aż wszystkie Promise'y z listy osiągną stan `fulfilled` (czyli wszystkie wywołają u siebie `resolve`).
 - Kiedy tak się stanie, wypełnij Promise `p` listą wartości, które zwróciły Promise'y z listy (w takiej samej kolejności, w której zostały podane)
 
-> [!IMPORTANT] Ważna sprawa!
+> [!IMPORTANT]
 > Jeżeli wywołujemy `Promise.all` w taki sposób:
 > ```js
 > Promise.all(promisesTab);
