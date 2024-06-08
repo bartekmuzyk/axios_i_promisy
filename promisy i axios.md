@@ -10,40 +10,36 @@ Działanie tej funkcji wygląda następująco:
 - Poczekaj, aż wszystkie Promise'y z listy osiągną stan `fulfilled` (czyli wszystkie wywołają u siebie `resolve`).
 - Kiedy tak się stanie, wypełnij Promise `p` listą wartości, które zwróciły Promise'y z listy (w takiej samej kolejności, w której zostały podane)
 
-<hr/>
-
-#### ⚠️ Ważna sprawa!
-Jeżeli wywołujemy `Promise.all` w taki sposób:
-```js
-Promise.all(promisesTab);
-```
-i mamy do dyspozycji następujące funkcje asynchroniczne (tzn. takie, które zwracają `Promise`):
-```js
-function a() {
-    return new Promise(resolve => /* ... */);
-}
-
-function b() {
-    return new Promise(resolve => /* ... */);
-}
-
-function c() {
-    return new Promise(resolve => /* ... */);
-}
-```
-
-to lista `promisesTab` musi wyglądać tak:
-```js
-const promisesTab = [a(), b(), c()];  // ✅ Dobrze
-```
-a nie tak:
-```js
-const promisesTab = [a, b, c];  // ❌ Źle
-```
-
-Jest tak, ponieważ funkcja `Promise.all` przyjmuje listę ***samych Promise'ów***, a nie *funkcji, które zwracają Promise'y*. Ponieważ funkcje `a`, `b` i `c` *zwracają* Promise'y, to żeby uzyskać te Promise'y należy te funkcje **wywołać**.
-
-<hr/>
+> [!IMPORTANT] Ważna sprawa!
+> Jeżeli wywołujemy `Promise.all` w taki sposób:
+> ```js
+> Promise.all(promisesTab);
+> ```
+> i mamy do dyspozycji następujące funkcje asynchroniczne (tzn. takie, które zwracają `Promise`):
+> ```js
+> function a() {
+>     return new Promise(resolve => /* ... */);
+> }
+> 
+> function b() {
+>     return new Promise(resolve => /* ... */);
+> }
+> 
+> function c() {
+>     return new Promise(resolve => /* ... */);
+> }
+> ```
+> 
+> to lista `promisesTab` musi wyglądać tak:
+> ```js
+> const promisesTab = [a(), b(), c()];  // ✅ Dobrze
+> ```
+> a nie tak:
+> ```js
+> const promisesTab = [a, b, c];  // ❌ Źle
+> ```
+> 
+> Jest tak, ponieważ funkcja `Promise.all` przyjmuje listę ***samych Promise'ów***, a nie *funkcji, które zwracają Promise'y*. Ponieważ funkcje `a`, `b` i `c` *zwracają* Promise'y, to żeby uzyskać te Promise'y należy te funkcje **wywołać**.
 
 #### Przykład użycia `Promise.all`
 ```js
