@@ -378,3 +378,288 @@ const grupuj = (funTab1, funTab2, cb) => {
     });
 };
 ```
+
+# Zadanie 5
+Naszym zadaniem jest napisać funkcję `connect(funTab, fun)`, która:
+- Wykona wszystkie funkcje z `funTab` **równolegle** (tzn. **w tym samym momencie**)
+- Poczeka, aż wszystkie funkcje z tablicy `funTab` zwrócą wyniki
+- Po otrzymaniu **wszystkich** wyników funkcji z `funTab` wykona dla każdego z nich `fun(wynik)` **równolegle** (gdzie `wynik` to pojedynczy wynik którejś z funkcji z `funTab`)
+- Po otrzymaniu **wszystkich** wyników od wywołań `fun(wynik)`, pogrupować je w takim formacie:
+```js
+[
+    [w1, fun(w1)],
+    [w2, fun(w2)],
+    [w3, fun(w3)],
+    [w4, fun(w4)],
+    [w5, fun(w5)],
+    // ....
+]
+```
+Można tą postać wyników wyrazić za pomocą tabelki o szerokości **2** i wysokości **równej ilości funkcji w liście `funTab`**:
+|     |**funTab**    |**fun**    |
+|-----|:-------------|----------:|
+|**1**|w**1**        |fun(w**1**)|
+|**2**|w**2**        |fun(w**2**)|
+|**3**|w**3**        |fun(w**3**)|
+
+Zróbmy wszystko po kolei:
+
+### Kopiujemy definicję funkcji z polecenia
+```js
+const connect = (funTab, fun) => {
+    // do zrobienia :33333
+};
+```
+Od tej pory nowe fragmenty kodu będą oddzielone blokami od kodu, który istniał krok wcześniej.
+
+### Wykonanie wszystkich funkcji z `funTab` równolegle
+```js
+const connect = (funTab, fun) => {
+```
+```js
+    const promisy = funTab.map(funkcja => funkcja()); // Wydobywamy Promise'y z każdej funkcji z funTab'a
+    Promise.all(promisy) // Tworzymy Promise'a, który się spełni jak wszystkie Promise'y z listy "promisy" się spełnią
+```
+```js
+};
+```
+
+### Czekamy, aż wszystkie funkcje z `funTab` zwrócą wyniki
+```js
+const connect = (funTab, fun) => {
+    const promisy = funTab.map(funkcja => funkcja());
+    Promise.all(promisy)
+```
+```js
+        .then(wynikiZFunTaba => { // Tu nasłuchujemy, aż Promise zwrócony przez Promise.all się spełni
+            // "wynikiZFunTaba" zawiera listę wartości zwróconych przez wszystkie funkcje z "funTab"
+        });
+```
+```js
+};
+```
+
+### Po otrzymaniu wszystkich wyników funkcji z `funTab` wykonujemy dla każdego z nich `fun(wynik)` **równolegle**
+```js
+const connect = (funTab, fun) => {
+    const promisy = funTab.map(funkcja => funkcja());
+    Promise.all(promisy)
+        .then(wynikiZFunTaba => {
+```
+```js
+            // Zamieniamy każdy wynik na wywołanie "fun" z tym wynikiem podanym jako argument
+            const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+            Promise.all(promisy)
+                .then(wynikiZFun => {
+                    // "wynikiZFun" zawiera listę wartości zwróconych przez wywołania "fun" dla każdej wartości z "wynikiZFunTaba"
+                });
+```
+```js
+        });
+};
+```
+
+### Po otrzymaniu wszystkich wyników od wywołań `fun(wynik)`, pogrupować je w odpowiednim formacie
+```js
+const connect = (funTab, fun) => {
+    const promisy = funTab.map(funkcja => funkcja());
+    Promise.all(promisy)
+        .then(wynikiZFunTaba => {
+            const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+            Promise.all(promisy)
+                .then(wynikiZFun => {
+```
+```js
+                    const pogrupowane = wynikiZFunTaba.map(
+                        (wynikZFunTaba, indeks) => {
+                            return [
+                                wynikiZFunTaba,
+                                wynikiZFun[indeks]
+                            ];
+                        }
+                    );
+```
+```js
+                });
+        });
+};
+```
+
+Zamieniamy każdą wartość z listy "wynikiZFunTaba" na dwuelementową listę, w której:
+- **Indeks 0** = wynik którejś funkcji z listy "funTab"
+- **Indeks 1** = wynik fun() dla tego wyniku funkcji z listy "funTab"
+
+Ponieważ Promise.all zachowuje kolejność wyników taką, jaka była kolejność funkcji, które te wyniki zwracają, to możemy być pewni, że odwołanie po indeksie poprawnie pogrupuje wszystkie wartości.
+
+### Pozostało zwrócić `pogrupowane`... Ale jak?
+Ponieważ korzystamy w naszej funkcji `connect` z innych funkcji asynchronicznych, to funkcja `connect` też musi być asynchroniczna.
+
+Na razie taka nie jest, ponieważ:
+- Nie ma nigdzie słówka `async` w definicji funkcji `connect`
+- Funkcja `connect` nie przyjmuje *callback'a* (aka nie ma argumentu `cb` albo `callback` albo coś podobnego)
+- Funkcja `connect` nie zwraca Promise'a
+
+Aby zmienić funkcję `connect` w funkcję asynchroniczną, użyjemy trzeciego rozwiązania ponieważ:
+- Nie wolno nam używać `async`/`await`
+- Nie możemy modyfikować definicji funkcji (więc nie możemy do listy argumentów dodać *callback'a*)
+- Wolno nam jedynie modyfikować treść funkcji, a tylko tego wymaga zwrócenie Promise'a
+
+```js
+const connect = (funTab, fun) => {
+```
+```js
+    return new Promise((resolve) => {
+```
+```js
+        // Przesuwamy wszystko o jedno wcięcie
+        const promisy = funTab.map(funkcja => funkcja());
+        Promise.all(promisy)
+            .then(wynikiZFunTaba => {
+                const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+                Promise.all(promisy)
+                    .then(wynikiZFun => {
+                        const pogrupowane = wynikiZFunTaba.map(
+                            (wynikZFunTaba, indeks) => {
+                                return [
+                                    wynikiZFunTaba,
+                                    wynikiZFun[indeks]
+                                ];
+                            }
+                        );
+                    });
+            });
+```
+```js
+    });
+};
+```
+
+Teraz aby zwrócić `pogrupowane`, możemy użyć `resolve`, który pojawił się dzięki "owinięciu" wszystkiego w `return new Promise()`:
+```js
+const connect = (funTab, fun) => {
+    return new Promise((resolve) => {
+        const promisy = funTab.map(funkcja => funkcja());
+        Promise.all(promisy)
+            .then(wynikiZFunTaba => {
+                const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+                Promise.all(promisy)
+                    .then(wynikiZFun => {
+                        const pogrupowane = wynikiZFunTaba.map(
+                            (wynikZFunTaba, indeks) => {
+                                return [
+                                    wynikiZFunTaba,
+                                    wynikiZFun[indeks]
+                                ];
+                            }
+                        );
+
+```
+```js
+                        resolve(pogrupowane);
+```
+```js
+                    });
+            });
+    });
+};
+```
+
+### Końcowy program
+
+#### Na "czysto"
+```js
+const connect = (funTab, fun) => {
+    return new Promise((resolve) => {
+        const promisy = funTab.map(funkcja => funkcja());
+
+        Promise.all(promisy)
+            .then(wynikiZFunTaba => {
+                const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+
+                Promise.all(promisy)
+                    .then(wynikiZFun => {
+                        const pogrupowane = wynikiZFunTaba.map(
+                            (wynikZFunTaba, indeks) => {
+                                return [
+                                    wynikiZFunTaba,
+                                    wynikiZFun[indeks]
+                                ];
+                            }
+                        );
+
+                        resolve(pogrupowane);
+                    });
+            });
+    });
+};
+```
+
+#### Z komentarzami
+```js
+const connect = (funTab, fun) => {
+    return new Promise((resolve) => {
+        const promisy = funTab.map(funkcja => funkcja()); // Wydobywamy Promise'y z każdej funkcji z funTab'a
+
+        Promise.all(promisy) // Tworzymy Promise'a, który się spełni jak wszystkie Promise'y z listy "promisy" się spełnią
+            .then(wynikiZFunTaba => { // Tu nasłuchujemy, aż Promise zwrócony przez Promise.all się spełni
+                // "wynikiZFunTaba" zawiera listę wartości zwróconych przez wszystkie funkcje z "funTab"
+
+                // Zamieniamy każdy wynik na wywołanie "fun" z tym wynikiem podanym jako argument
+                const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+
+                Promise.all(promisy)
+                    .then(wynikiZFun => {
+                        // "wynikiZFun" zawiera listę wartości zwróconych przez wywołania "fun" dla każdej wartości z "wynikiZFunTaba"
+
+                        
+                        /* Zamieniamy każdą wartość z listy "wynikiZFunTaba" na dwuelementową listę, w której:
+
+                            - Indeks 0 = wynik którejś funkcji z listy "funTab"
+                            - Indeks 1 = wynik fun() dla tego wyniku funkcji z listy "funTab"
+
+                        Ponieważ Promise.all zachowuje kolejność wyników taką, jaka była kolejność funkcji,
+                        które te wyniki zwracają, to możemy być pewni, że odwołanie po indeksie poprawnie
+                        pogrupuje wszystkie wartości. */
+                        const pogrupowane = wynikiZFunTaba.map(
+                            (wynikZFunTaba, indeks) => {
+                                return [
+                                    wynikiZFunTaba,
+                                    wynikiZFun[indeks]
+                                ];
+                            }
+                        );
+
+                        resolve(pogrupowane);
+                    });
+            });
+    });
+};
+```
+
+#### Z oznaczonymi wcięciami
+```js
+const connect = (funTab, fun) => {
+    return new Promise((resolve) => {
+    ┆   const promisy = funTab.map(funkcja => funkcja());
+    ┆
+    ┆   Promise.all(promisy)
+    ┆       .then(wynikiZFunTaba => {
+    ┆       ┆   const promisy = wynikiZFunTaba.map(wynik => fun(wynik));
+    ┆       ┆
+    ┆       ┆   Promise.all(promisy)
+    ┆       ┆       .then(wynikiZFun => {
+    ┆       ┆       ┆   const pogrupowane = wynikiZFunTaba.map(
+    ┆       ┆       ┆       (wynikZFunTaba, indeks) => {
+    ┆       ┆       ┆       ┆   return [
+    ┆       ┆       ┆       ┆       wynikiZFunTaba,
+    ┆       ┆       ┆       ┆       wynikiZFun[indeks]
+    ┆       ┆       ┆       ┆   ];
+    ┆       ┆       ┆       }
+    ┆       ┆       ┆   );
+    ┆       ┆       ┆
+    ┆       ┆       ┆   resolve(pogrupowane);
+    ┆       ┆       });
+    ┆       });
+    });
+};
+```
