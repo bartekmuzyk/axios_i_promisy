@@ -895,3 +895,129 @@ axios.get("https://jsonplaceholder.typicode.com/posts")
         console.log(headers);
     });
 ```
+
+## Zadanie 1.2
+> Stwórz funkcje, która przyjmuje jako parametr obiekt w postaci:
+>
+> ```js
+> {
+>   idUser: (pole typu int)
+>   title: (pole typu string)
+>   completed: (pole typu boolean)
+> }
+> ```
+>
+> Następnie wysyła taki obiekt za pomocą funkcji POST z biblioteki axios pod url: https://jsonplaceholder.typicode.com/todos
+> 
+> Jeśli dodanie zakończy się sukcesem - wyświetl w konsoli komunikat 'Dodano' i id dodanego obiektu. W przeciwnym wypadku wypisz błąd.
+
+#### Stwórz funkcję, która przyjmuje jako parametr obiekt
+```js
+const axios = require("axios");
+
+function fun(obj) {
+
+}
+```
+
+#### Wyślij obiekt za pomocą funkcji POST z biblioteki axios pod url: `https://jsonplaceholder.typicode.com/todos`
+Aby wysłać jakieś dane do serwera, musimy wykonać zapytanie do tego serwera z metodą, która wspiera wysyłanie danych. Jedną z nich jest właśnie `POST`.
+
+Aby powiedzieć axiosowi jakie dane konkretnie chcemy serwerowi wysłać pod dany adres, podajemy te dane po prostu jako drugi argument:
+```js
+const obj = {
+    foo: 2,
+    bar: "test",
+    uwu: "fifonż"
+};
+
+// Takie wywołanie wyśle dane obiektu "obj" pod adres "abc" za pomocą metody POST
+axios.post("abc", obj);
+```
+
+Jedyne co musimy więc zrobić w naszej funkcji, to:
+```js
+const axios = require("axios");
+
+function fun(obj) {
+    axios.post("https://jsonplaceholder.typicode.com/todos", obj)
+        .then(response => {
+            // czekamy na odpowiedź, która znajdzie się w "response"...
+        });
+}
+```
+
+#### Jeśli dodanie zakończy się sukcesem - wyświetl w konsoli komunikat 'Dodano' i id dodanego obiektu...
+Jeżeli uruchomisz teraz taki kod:
+```js
+const axios = require("axios");
+
+function fun(obj) {
+    axios.post("https://jsonplaceholder.typicode.com/todos", obj)
+        .then(response => {
+            console.log(response.data);  // po otrzymaniu odpowiedzi, wyświetlimy zawarte w niej dane
+        });
+}
+
+// testowe wywołanie, żeby zobaczyć co się stanie dla przykładowych, wymyślonych danych
+fun({
+    idUser: 1,
+    title: "uwu",
+    completed: false
+});
+```
+
+To w konsoli powinno pojawić się coś w tym stylu:
+```js
+{ idUser: 1, title: 'uwu', completed: false, id: 201 }
+```
+
+Jak możesz zauważyć, w danych odpowiedzi, którą dostaliśmy, znajduje się cały obiekt "notatki", którą utworzyliśmy naszym zapytaniem. Oprócz danych, które przekazaliśmy sami (`idUser`, `title` oraz `completed`) znajduje się tam również pole `id`. Jest to identyfikator naszej "notatki", który nam się teraz przyda.
+
+```js
+const axios = require("axios");
+
+function fun(obj) {
+    axios.post("https://jsonplaceholder.typicode.com/todos", obj)
+        .then(response => {
+            const daneOdpowiedzi = response.data;  // daneOdpowiedzi to ten obiekt z wyżej
+
+            console.log("Dodano");
+            console.log(daneOdpowiedzi.id); // LUB console.log(daneOdpowiedzi["id"])
+        });
+}
+
+// testowe wywołanie, żeby zobaczyć co się stanie dla przykładowych, wymyślonych danych
+fun({
+    idUser: 1,
+    title: "uwu",
+    completed: false
+});
+```
+
+#### ..., w przeciwnym wypadku wypisz błąd
+```js
+const axios = require("axios");
+
+function fun(obj) {
+    axios.post("https://jsonplaceholder.typicode.com/todos", obj)
+        .then(response => {
+            const daneOdpowiedzi = response.data;
+
+            console.log("Dodano");
+            console.log(daneOdpowiedzi.id);
+        })
+        .catch(blad => {  // dodajemy nasłuchiwanie na błąd po prostu
+            console.log(`błąd: ${blad}`);
+        });
+}
+
+// testowe wywołanie, żeby zobaczyć co się stanie dla przykładowych, wymyślonych danych
+fun({
+    idUser: 1,
+    title: "uwu",
+    completed: false
+});
+```
+
+I to całe zadanie 1.2! :33333333333333
