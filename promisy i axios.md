@@ -663,3 +663,226 @@ const connect = (funTab, fun) => {
     });
 };
 ```
+
+# Axios
+
+## Zadanie 1.1
+
+>Stwórz projekt i dołącz do niego bibliotekę axios.
+>
+>Następnie wykonaj zapytanie metodą GET za pomocą dodanej biblioteki pod następujący url: https://jsonplaceholder.typicode.com/posts
+>
+>Jako pierwszy callback - sprawdź, czy response jest poprawny (status równy 200). 
+>
+>Jeśli tak - zwróć response, w przeciwnym wypadku - wypisz błąd w konsoli.
+>
+>Jako następny callback - użyj destrukcji obiektów, aby wypisać w konsoli zmienną 'data' i 'headers'.
+
+### Co to *destrukcja obiektów*?
+*Destrukcja obiektów* - a dokładniej *destruk**turyza**cja obiektów* (z ang. *Object Destructuring*) - polega na wzięciu obiektu i rozbiciu go na wybrane części pierwsze.
+
+Dla przykładu, przypuśćmy obiekt:
+```js
+const obj = {
+    foo: 2,
+    bar: "test",
+    uwu: "fifonż"
+};
+```
+Teraz powiedzmy, że chcemy z niego otrzymać tylko następujące pozycje:
+```js
+{
+    foo: 2,
+    bar: "test"
+}
+```
+Możemy użyć do tego klasycznego przypisania do zmiennych po kluczach:
+```js
+const foo = a["foo"]; // lub a.foo
+const bar = a["bar"]; // lub a.bar
+```
+Istnieje natomiast skrótowy zapis takiego rozbijania obiekty na wybrane części:
+```js
+const {foo, bar} = a;
+
+console.log(foo === a["foo"]);  // true
+console.log(bar === a["bar"]);  // true
+```
+Składnia destrukturyzacji obiektów wygląda tak:
+```js
+const {[lista nazw kluczy, których wartości chcemy otrzymać...]} = [obiekt z którego chcemy otrzymać wspomniane klucze];
+```
+Dodatkowo, ta składnia powoduje, że nazwy kluczy podane w klamrach (między `{` a `}`) są traktowane jako normalne nazwy zmiennych, co oznacza, że rozbijając obiekt `obj` na części `foo` oraz `bar`, ta składnia pozwala na jednoczesne pobranie wartości dla tych kluczy i przypisanie ich do zmiennych o tych samych nazwach.
+
+Przykład użycia w praktyce pojawi się podczas rozwiązywania zadania
+
+### Przejdźmy do samego zadania
+No to zacznijmy po kolei
+
+#### Stwórz projekt i dołącz do niego bibliotekę axios.
+Jeśli potrzebne jest przypomnienie, to tak to się robi:
+- Utworzenie projektu
+  - `npm init -y`
+- Zainstalowanie biblioteki axios
+  - `npm install axios`
+
+Tworzymy plik (np. `index.js`) i wbijamy do niego tę linijkę:
+```js
+const axios = require("axios");
+```
+aby zaciągnąć axios'a do projektu i móc z niego korzystać.
+
+> [!NOTE]
+> Taki `require()` działa niejako jak `import` z Pythona:
+> ```python
+> import axios
+> ```
+
+#### Następnie wykonaj zapytanie metodą GET za pomocą dodanej biblioteki pod następujący url
+URL (czyli adres internetowy), pod który mamy wykonać zapytanie (czyli żądanie) to:
+```
+https://jsonplaceholder.typicode.com/posts
+```
+
+Sam [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com) jest stroną, która przechowuje przykładowe dane. Nie ma to znaczenia czym one są, ważne jest w tej stronie to, że dane te dostępne są *przez internet*, i to jedyne co się liczy. Strona ta służy głównie do nauki wykonywania właśnie żądań lub testowania istniejącego kodu bez konieczności zmiany *samego sposobu* pobierania danych.
+
+Każde zapytanie/żądanie (od tej pory stosować będę słowo *zapytanie*) ma swoją *metodę*, która określa niejako cel takiego zapytania. Oto przykłady kilku z nich:
+- **`GET`** pobiera dane z serwera
+- **`POST`** wrzuca nowe dane do serwera
+- **`PUT`** wrzuca lub aktualizuje dane na serwerze
+- **`UPDATE`** aktualizuje dane na serwerze
+- **`DELETE`** usuwa dane z serwera
+
+Metody zapytań rozpoznawane są w taki sam sposób przez dowolny serwer i wszędzie nazywają się tak samo, ponieważ są **standardem komunikacji internetowej**. Jest ich więcej niż te, które podałem powyżej, natomiast najpopularniejsze są dwa z nich: `GET` i `POST`.
+
+To dlatego, że reprezentują najczęstsze czynności w serwisach internetowych:
+- Pobierasz swój feed na Instagramie? `GET`
+- Pobierasz zdjęcie posta? `GET`
+- Wrzucasz nowe story? `POST`
+- Wchodzisz na stronę internetową i musisz pobrać jej stronę główną? `GET`
+- Publikujesz post na ~~Twitterze~~ X? `POST`
+
+Innymi popularnymi są `DELETE` i `PUT`, które stosowalibyśmy kolejno do np. usunięcia zdjęcia ze swojego profilu albo edytowania posta na Facebook'u, natomiast `GET` i `POST` to jedyne, które nam się przydadzą.
+
+**Teraz kiedy już wiemy czym są metody, możemy zacząć wykonywać zapytania z nimi za pomocą Axios'a!**
+
+Aby wykonać zapytanie z wybraną metodą, używamy takiej składni:
+```js
+axios.[metoda]([adres]);
+```
+Np. jeśli chcielibyśmy wykonać zapytanie `GET` pod adres `abc`, możemy napisać:
+```js
+axios.get("abc");
+```
+Zapytanie `POST` pod adres `uwu` wygląda za to tak:
+```js
+axios.post("uwu");
+```
+> [!NOTE]
+> Przykład z `.post()` jest trochę niekompletny. Ponieważ jest to jedna z metod, która **wysyła jakieś dane** do serwera, to możemy te dane podać w dodatkowym argumencie.
+> 
+> Wysyłania danych na podany adres URL nauczymy się w kolejnym zadaniu.
+
+Wróćmy do oryginalnego polecenia, które kazało nam wysłać zapytanie metodą `GET` pod adres `https://jsonplaceholder.typicode.com/posts`. Robimy to w dokładnie taki sam sposób jak wyżej:
+```js
+const axios = require("axios");  // to jest super ważne, inaczej axiosa w ogóle nie ma w projekcie, mimo że jest zainstalowany
+
+axios.get("https://jsonplaceholder.typicode.com/posts");
+```
+
+#### Jako pierwszy callback - sprawdź, czy response jest poprawny (status równy 200).
+Każda *odpowiedź* na dane *zapytanie* (nie ważne jaką metodą) zawiera coś takiego jak **kod statusu**.
+
+Kody statusu również są ustandaryzowane, a więc wszędzie są takie same i oznaczają to samo. Oto kilka najpopularniejszych:
+- **`200`** *OK* (aka wszystko jest dobrze)
+- **`404`** *Not Found* (serwer nie znalazł tego o co prosiliśmy)
+- **`500`** *Internal Server Error* (coś poważnego się stało i kod na serwerze dostał wylewu)
+- **`503`** *Service Unavailable* (serwis nie jest teraz dostępny z dowolnego powodu)
+
+Aby było jaśniej, wszystkie kody zaczynają się od numerków, które określają ich kategorię:
+- `1XX` są informacyjne
+- `2XX` określają jakiś rodzaj sukcesu w wykonywaniu zapytania
+- `3XX` mówią, że nasze zapytanie powinno zostać przekierowane na inny adres
+- `4XX` opisują błędy od strony wykonawcy zapytania
+- `5XX` opisują błędy od strony serwera (odbiory zapytania)
+
+Dodajmy więc `.then()` do naszego wywołania, aby poczekać na odpowiedź na zapytanie:
+
+```js
+const axios = require("axios");
+
+axios.get("https://jsonplaceholder.typicode.com/posts")
+    .then(response => {
+        // "response" będzie zawierało odpowiedź od serwera, kiedy ten takową nam wyśle
+
+        if (response.status === 200) { // sprawdzamy czy kod statusu jest równy 200
+            // tutaj coś będzie... pewnie...... chyba :33333333333 jestem trochę zmęczony
+        }
+    });
+```
+
+#### Jeśli status jest równy 200 - zwróć response, w przeciwnym wypadku - wypisz błąd w konsoli.
+```js
+const axios = require("axios");
+
+axios.get("https://jsonplaceholder.typicode.com/posts")
+    .then(response => {
+        // "response" będzie zawierało odpowiedź od serwera, kiedy ten takową nam wyśle
+
+        if (response.status === 200) {
+            return response;  // zwracamy response, tak jak jest napisane w poleceniu - tak zwrócony może być przyjęty przez kolejny .then().
+        } else {
+            console.log(`Błąd! Odpowiedź ma kod statusu ${response.status} a nie 200.`);
+        }
+    });
+```
+
+#### Jako następny callback - użyj destrukcji obiektów, aby wypisać w konsoli zmienną 'data' i 'headers'.
+Tutaj pojawia się nasza znajoma ~~destrukcja~~ destrukturyzacja obiektów!
+
+```js
+const axios = require("axios");
+
+axios.get("https://jsonplaceholder.typicode.com/posts")
+    .then(response => {
+        // "response" będzie zawierało odpowiedź od serwera, kiedy ten takową nam wyśle
+
+        if (response.status === 200) {
+            return response;  // ponieważ tu zwracamy response, to możemy go przyjąć w kolejnym .then() jak poniżej.
+        } else {
+            console.log(`Błąd! Odpowiedź ma kod statusu ${response.status} a nie 200.`);
+        }
+    })
+    .then(response => {
+        // tutaj jest ten "następny callback"
+
+        // rozdzielamy obiekt "response" na dwie części:
+        //   - data (które przechowuje dane z odpowiedzi wysłane przez serwer)
+        //   - headers (które zawiera tzw. nagłówki z odpowiedzi wysłanej przed serwer, nieistotne co to jest na razie)
+        const {data, headers} = response;
+        
+        // wypisujemy obie rzeczy do konsoli :3333
+        console.log(data);
+        console.log(headers);
+    });
+```
+
+### Całe zadanie bez komentarzy:
+```js
+const axios = require("axios");
+
+axios.get("https://jsonplaceholder.typicode.com/posts")
+    .then(response => {
+        if (response.status === 200) {
+            return response;
+        } else {
+            console.log(`Błąd! Odpowiedź ma kod statusu ${response.status} a nie 200.`);
+        }
+    })
+    .then(response => {
+        const {data, headers} = response;
+        
+        console.log(data);
+        console.log(headers);
+    });
+```
