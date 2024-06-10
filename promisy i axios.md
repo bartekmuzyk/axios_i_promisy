@@ -1,3 +1,12 @@
+# Spis treści
+- Promise'y
+  - [Zadanie 4](#zadanie-4)
+  - [Zadanie 5](#zadanie-5)
+- Axios
+  - [Zadanie 1.1](#zadanie-11)
+  - Zadanie 1.2 **(za niedługo)**
+  - Zadanie 2 **(chyba jutro, w sensie 11 czerwca)**
+
 # Promise'y
 
 ## Zadanie 4
